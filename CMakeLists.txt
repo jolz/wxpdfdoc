@@ -34,20 +34,22 @@ target_include_directories(wxpdfdoc PRIVATE src/crypto/)
 target_link_libraries(wxpdfdoc wx::core wx::xml)
 add_library(wxpdfdoc::wxpdfdoc ALIAS wxpdfdoc)
 
-# sample minimal
-file(GLOB wxpdfdoc_minimal_source_list "samples/minimal/*.cpp"
-     "samples/minimal/*.rc")
-add_executable(wxpdfdoc_minimal ${wxpdfdoc_minimal_source_list})
-
-target_link_directories(wxpdfdoc_minimal PRIVATE samples/minimal)
-target_link_libraries(wxpdfdoc_minimal wxpdfdoc::wxpdfdoc)
-
-# sample pdfdc
-add_executable(wxpdfdoc_pdfdc samples/pdfdc/printing.cpp
-                              samples/pdfdc/printing.rc)
-target_link_directories(wxpdfdoc_pdfdc PRIVATE samples/pdfdc)
-target_link_libraries(wxpdfdoc_pdfdc wxpdfdoc::wxpdfdoc wx::adv wx::html
-                      wx::richtext)
+if (WXPDFDOC_samples)
+  # sample minimal
+  file(GLOB wxpdfdoc_minimal_source_list "samples/minimal/*.cpp"
+       "samples/minimal/*.rc")
+  add_executable(wxpdfdoc_minimal ${wxpdfdoc_minimal_source_list})
+  
+  target_link_directories(wxpdfdoc_minimal PRIVATE samples/minimal)
+  target_link_libraries(wxpdfdoc_minimal wxpdfdoc::wxpdfdoc)
+  
+  # sample pdfdc
+  add_executable(wxpdfdoc_pdfdc samples/pdfdc/printing.cpp
+                                samples/pdfdc/printing.rc)
+  target_link_directories(wxpdfdoc_pdfdc PRIVATE samples/pdfdc)
+  target_link_libraries(wxpdfdoc_pdfdc wxpdfdoc::wxpdfdoc wx::adv wx::html
+                        wx::richtext)
+endif()
 
 # utility makefont
 add_executable(wxpdfdoc_makefont makefont/makefont.cpp makefont/makefont.rc)
