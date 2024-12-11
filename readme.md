@@ -1,3 +1,34 @@
+# differences from [utelle/wxpdfdoc](https://github.com/utelle/wxpdfdoc)
+
+* add (native) CMakeLists.txt
+
+Example Usage (with [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake)):
+
+```cmake
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+
+project(wxWidgetsExample)
+
+# ---- Dependencies ----
+
+include(cmake/CPM.cmake)
+
+CPMAddPackage("gh:wxWidgets/wxWidgets@3.2.6")
+
+CPMAddPackage(
+  NAME wxpdfdoc
+  VERSION 1.2.0
+  GIT_REPOSITORY https://github.com/jolz/wxpdfdoc.git  
+  GIT_TAG cmake
+  OPTIONS "WXPDFDOC_use_external_wxwidgets ON"
+)
+
+# ---- Executable ----
+
+add_executable(wxWidgetsExample main.cpp)
+target_link_libraries(wxWidgetsExample wxpdfdoc::wxpdfdoc)
+```
+
 # wxPdfDocument - Generation of PDF documents from wxWidgets applications
 
 **wxPdfDocument** allows wxWidgets applications to generate PDF documents.
