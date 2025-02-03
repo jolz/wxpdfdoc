@@ -7,9 +7,18 @@ and from version 0.9.0 onwards this project adheres to [Semantic Versioning](htt
 
 ## [Unreleased]
 
+## [1.2.1] - 2025-01-06
+
 ### Changed
 
 - Improved font lookup in wxPdfFontManager to search also under the font family alias, if given
+- Replaced use of wxScreenDC by wxDisplay
+- Restored support for wxWidgets 3.0.x
+
+### Fixed
+
+- Check for availability of header file `Security/SecRandom.h` (fix issue #94)
+- Fixed wxPdfDCImpl::DoDrawText for multiline text
 
 ## [1.2.0] - 2024-02-18
 
@@ -500,7 +509,8 @@ First public release
 
 - Planning and basic PDF features implemented
 
-[Unreleased]: ../../compare/v1.2.0...HEAD
+[Unreleased]: ../../compare/v1.2.1...HEAD
+[1.2.1]: ../../compare/v1.2.0...v1.2.1
 [1.2.0]: ../../compare/v1.1.0...v1.2.0
 [1.1.0]: ../../compare/v1.0.3...v1.1.0
 [1.0.3]: ../../compare/v1.0.2...v1.0.3
