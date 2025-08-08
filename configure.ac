@@ -1,11 +1,11 @@
 dnl Process this script with autoconf to create configure for wxpdfdoc library
 dnl
-dnl Copyright (C) 2018-2024 Ulrich Telle <github@telle-online.de> 
+dnl Copyright (C) 2018-2025 Ulrich Telle <github@telle-online.de> 
 dnl Copyright (C) 2017 Vadim Zeitlin <vadim@wxwidgets.org>
 dnl
 dnl This file is covered by the same licence as the entire wxpdfdoc package.
 
-AC_INIT([wxpdfdoc], [1.2.1], [github@telle-online.de])
+AC_INIT([wxpdfdoc], [1.3.1], [github@telle-online.de])
 
 dnl This is the version tested with, might work with earlier ones.
 AC_PREREQ([2.69])
@@ -42,21 +42,17 @@ AC_ARG_ENABLE(utilities,
              [BUILD_UTILITIES=1])
 AM_CONDITIONAL([BUILD_UTILITIES], [test -n "$BUILD_UTILITIES"])
 
-dnl Allow adding MSW-specific fragments to the makefile.
-case "${host}" in
-    *-*-cygwin* )
-        USE_MSW=1
-        ;;
+AC_ARG_WITH([zint-builtin],
+    [AS_HELP_STRING([--with-zint-builtin],
+        [Use builtin Zint library])],
+    [],
+    [with_zint_builtin=no])
 
-    *-*-mingw32* )
-        USE_MSW=1
-        ;;
-esac
-AM_CONDITIONAL(USE_MSW, [test -n "$USE_MSW"])
-
-if test -n "$USE_MSW"; then
-    AC_CHECK_TOOL([WINDRES], [windres], no)
-fi
+AC_ARG_WITH([woff2-builtin],
+    [AS_HELP_STRING([--with-woff2-builtin],
+        [Use builtin WOFF2 library])],
+    [],
+    [with_woff2_builtin=no])
 
 dnl Detect the target system
 
@@ -81,10 +77,64 @@ case "${host_os}" in
         ;;
 esac
 
+if [test "x$build_mac" = xyes]; then
+CFLAGS="-I$(brew --prefix)/include $CFLAGS"
+CPPFLAGS="-I$(brew --prefix)/include $CPPFLAGS"
+LDFLAGS="-L$(brew --prefix)/lib $LDFLAGS"
+fi
+
+dnl Check for Zint
+haveZint=false
+AC_CHECK_HEADERS(zint.h, [
+  AC_SEARCH_LIBS(ZBarcode_Version, zint, [haveZint=true], [haveZint=false])
+], [haveZint=false])
+
+dnl Check for Woff2
+haveWoff2=false
+AC_LANG(C++)
+dnl AC_CHECK_HEADERS(woff2/decode.h, [
+dnl   AC_SEARCH_LIBS([BrotliDecoderDecompress],[woff2dec], [haveWoff2=true], [haveWoff2=false])
+dnl ], [haveWoff2=false])
+
+AC_LANG_PUSH([C++])
+
+AC_MSG_CHECKING([for libwoff2dec])
+SAVE_LIBS="$LIBS"
+LIBS="$LIBS -lwoff2dec"
+AC_LINK_IFELSE(
+  [AC_LANG_PROGRAM(
+     [[#include <woff2/decode.h>]],
+     [[woff2::ConvertWOFF2ToTTF(nullptr, 0, nullptr, 0);]]
+   )],
+  [haveWoff2=true],
+  [haveWoff2=false]
+)
+LIBS="$SAVE_LIBS"
+AC_LANG_POP([C++])
+
+dnl Allow adding MSW-specific fragments to the makefile.
+case "${host}" in
+    *-*-cygwin* )
+        USE_MSW=1
+        ;;
+
+    *-*-mingw32* )
+        USE_MSW=1
+        ;;
+esac
+AM_CONDITIONAL(USE_MSW, [test -n "$USE_MSW"])
+
+if test -n "$USE_MSW"; then
+    AC_CHECK_TOOL([WINDRES], [windres], no)
+fi
+
 dnl Pass the conditionals to automake
 AM_CONDITIONAL([HOST_LINUX], [test "$build_linux" = "yes"])
 AM_CONDITIONAL([HOST_WINDOWS], [test "$build_windows" = "yes"])
 AM_CONDITIONAL([HOST_OSX], [test "$build_mac" = "yes"])
+
+AM_CONDITIONAL([HAVE_ZINT], [test x$haveZint = xtrue && test "x$with_zint_builtin" = xno])
+AM_CONDITIONAL([HAVE_WOFF2], [test x$haveWoff2 = xtrue && test "x$with_woff2_builtin" = xno])
 
 LT_INIT([win32-dll])
 AM_CONDITIONAL([USE_SHARED], [test "x$enable_shared" = xyes])
@@ -204,6 +254,18 @@ AC_CONFIG_LINKS([samples/pdfdc/smile.jpg:samples/pdfdc/smile.jpg
     samples/minimal/indic-tamil.txt:samples/minimal/indic-tamil.txt
     samples/minimal/indic-telugu.txt:samples/minimal/indic-telugu.txt
 ])
+
+ZINT_LIBS=
+if [test x$haveZint = xtrue && test "x$with_zint_builtin" = xno]; then
+ZINT_LIBS=-lzint
+fi
+AC_SUBST(ZINT_LIBS)
+
+WOFF2_LIBS=
+if [test x$haveWoff2 = xtrue && test "x$with_woff2_builtin" = xno]; then
+WOFF2_LIBS=-lwoff2dec
+fi
+AC_SUBST(WOFF2_LIBS)
 
 AC_CONFIG_FILES([Makefile wxpdfdoc.pc])
 AC_OUTPUT
