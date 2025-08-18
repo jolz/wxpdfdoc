@@ -13,7 +13,7 @@
 #include <cstring>
 #include <memory>
 #include <string>
-#include <cstdint.h>
+#include <cstdint>
 
 namespace woff2 {
 
