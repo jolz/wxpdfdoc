@@ -13,11 +13,11 @@ project(wxWidgetsExample)
 
 include(cmake/CPM.cmake)
 
-CPMAddPackage("gh:wxWidgets/wxWidgets@3.2.6")
+CPMAddPackage("gh:wxWidgets/wxWidgets@3.3.1")
 
 CPMAddPackage(
   NAME wxpdfdoc
-  VERSION 1.2.0
+  VERSION 1.3.1
   GIT_REPOSITORY https://github.com/jolz/wxpdfdoc.git  
   GIT_TAG cmake
   OPTIONS "WXPDFDOC_use_external_wxwidgets ON"
