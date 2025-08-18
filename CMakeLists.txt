@@ -54,6 +54,7 @@ file(GLOB woff2_files
     )
 add_library(wxpdfdoc-woff2 STATIC ${woff2_files})
 target_include_directories(wxpdfdoc-woff2 PUBLIC ${WOFF2_SRC_DIR}/include)
+target_include_directories(wxpdfdoc-woff2 PRIVATE ${WOFF2_SRC_DIR}/brotli/include)
 set_property(TARGET wxpdfdoc-woff2 PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 # library libwxpdfdoc
